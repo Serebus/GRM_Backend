@@ -125,6 +125,13 @@ using (var scope = app.Services.CreateScope())
         db.Users.Add(admin);
         db.SaveChanges();
     }
+    if (!db.Users.Any(u => u.Role == "Staff"))
+    {
+        var staff = new User { Username = "staff", Email = "staff@grm.local", Role = "Staff", FullName = "Staff Member" };
+        staff.PasswordHash = hasher.HashPassword(staff, builder.Configuration["StaffSeed:Password"] ?? "Staff123!");
+        db.Users.Add(staff);
+        db.SaveChanges();
+    }
 }
 
 // Configure HTTP request pipeline

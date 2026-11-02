@@ -21,6 +21,20 @@ public class ProductVariant
     public string Sku { get; set; } = string.Empty;
     public decimal Price { get; set; }
     public int Stock { get; set; }
+    public int ReorderThreshold { get; set; } = 5;
+}
+
+public class StockMovement
+{
+    public int Id { get; set; }
+    public int VariantId { get; set; }
+    public ProductVariant? Variant { get; set; }
+    public string Type { get; set; } = string.Empty; // StockIn, StockOut, Adjustment
+    public int QuantityChange { get; set; }
+    public int StockAfter { get; set; }
+    public string? Reason { get; set; }
+    public int? UserId { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
 
 public class Bundle

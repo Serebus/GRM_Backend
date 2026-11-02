@@ -1,6 +1,49 @@
-@GRM_Backend_HostAddress = http://localhost:5133
+@GRM_Backend_HostAddress = http://localhost:5000
+@authToken = eyJhbGciOi...
 
-GET {{GRM_Backend_HostAddress}}/weatherforecast/
+### Register a new customer
+POST {{GRM_Backend_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "email": "johndoe@example.com",
+  "password": "Password123!",
+  "fullName": "John Doe",
+  "phoneNumber": "123-456-7890",
+  "address": "123 Elm Street"
+}
+
+### Login (returns JWT)
+POST {{GRM_Backend_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "emailOrUsername": "johndoe@example.com",
+  "password": "Password123!"
+}
+
+### Get Current User (Any logged in)
+GET {{GRM_Backend_HostAddress}}/api/auth/me
+Authorization: Bearer {{authToken}}
 Accept: application/json
 
-###
+### Logout (Any logged in)
+POST {{GRM_Backend_HostAddress}}/api/auth/logout
+Authorization: Bearer {{authToken}}
+
+### View Customer Profile (Customer role)
+GET {{GRM_Backend_HostAddress}}/api/profile
+Authorization: Bearer {{authToken}}
+Accept: application/json
+
+### Update Customer Profile (Customer role)
+PUT {{GRM_Backend_HostAddress}}/api/profile
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "fullName": "John Updated Doe",
+  "phoneNumber": "987-654-3210",
+  "address": "456 Oak Avenue"
+}

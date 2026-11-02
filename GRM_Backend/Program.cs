@@ -47,17 +47,26 @@ builder.Services.AddAuthentication(options =>
 
     options.Events = new JwtBearerEvents
     {
+        // Accept both "Bearer <token>" and a raw "<token>" in the Authorization header
+        OnMessageReceived = context =>
+        {
+            var authHeader = context.Request.Headers.Authorization.ToString().Trim();
+            if (!string.IsNullOrEmpty(authHeader))
+            {
+                context.Token = authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)
+                    ? authHeader.Substring("Bearer ".Length).Trim().Trim('"')
+                    : authHeader.Trim('"');
+            }
+            return Task.CompletedTask;
+        },
         OnTokenValidated = context =>
         {
             var blacklistService = context.HttpContext.RequestServices.GetRequiredService<ITokenBlacklistService>();
-            var authHeader = context.HttpContext.Request.Headers.Authorization.ToString();
-            if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            var token = (context.SecurityToken as Microsoft.IdentityModel.JsonWebTokens.JsonWebToken)?.EncodedToken
+                        ?? (context.SecurityToken as System.IdentityModel.Tokens.Jwt.JwtSecurityToken)?.RawData;
+            if (token != null && blacklistService.IsTokenBlacklisted(token))
             {
-                var token = authHeader.Substring("Bearer ".Length).Trim();
-                if (blacklistService.IsTokenBlacklisted(token))
-                {
-                    context.Fail("This token has been revoked.");
-                }
+                context.Fail("This token has been revoked.");
             }
             return Task.CompletedTask;
         }

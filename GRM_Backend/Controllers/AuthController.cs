@@ -4,6 +4,7 @@ using GRM_Backend.Data;
 using GRM_Backend.DTOs;
 using GRM_Backend.Models;
 using GRM_Backend.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -139,12 +140,11 @@ public class AuthController : ControllerBase
     [Authorize]
     [ProducesResponseType(typeof(MessageResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout()
     {
-        var authHeader = Request.Headers.Authorization.ToString();
-        if (authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        var token = await HttpContext.GetTokenAsync("access_token");
+        if (!string.IsNullOrEmpty(token))
         {
-            var token = authHeader.Substring("Bearer ".Length).Trim();
             var handler = new JwtSecurityTokenHandler();
             if (handler.CanReadToken(token))
             {

@@ -10,6 +10,10 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<User> Users => Set<User>();
+    public DbSet<Product> Products => Set<Product>();
+    public DbSet<ProductVariant> Variants => Set<ProductVariant>();
+    public DbSet<Bundle> Bundles => Set<Bundle>();
+    public DbSet<BundleItem> BundleItems => Set<BundleItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -21,5 +25,18 @@ public class AppDbContext : DbContext
             entity.HasIndex(u => u.Email).IsUnique();
             entity.HasIndex(u => u.Username).IsUnique();
         });
+
+        modelBuilder.Entity<Product>()
+            .HasMany(p => p.Variants).WithOne(v => v.Product).HasForeignKey(v => v.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<ProductVariant>().HasIndex(v => v.Sku).IsUnique();
+        modelBuilder.Entity<ProductVariant>().Property(v => v.Price).HasPrecision(18, 2);
+        modelBuilder.Entity<Bundle>().Property(b => b.Price).HasPrecision(18, 2);
+        modelBuilder.Entity<Bundle>()
+            .HasMany(b => b.Items).WithOne().HasForeignKey(i => i.BundleId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<BundleItem>()
+            .HasOne(i => i.Variant).WithMany().HasForeignKey(i => i.VariantId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

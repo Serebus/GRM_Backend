@@ -113,6 +113,20 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+// Seed a default admin account (change the password in production)
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher<User>>();
+    if (!db.Users.Any(u => u.Role == "Admin"))
+    {
+        var admin = new User { Username = "admin", Email = "admin@grm.local", Role = "Admin", FullName = "Administrator" };
+        admin.PasswordHash = hasher.HashPassword(admin, builder.Configuration["AdminSeed:Password"] ?? "Admin123!");
+        db.Users.Add(admin);
+        db.SaveChanges();
+    }
+}
+
 // Configure HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {

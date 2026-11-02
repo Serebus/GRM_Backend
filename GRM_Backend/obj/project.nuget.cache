@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "BSIHvLmjtJ0=",
+  "success": true,
+  "projectFilePath": "/home/serebus/RiderProjects/GRM_Backend/GRM_Backend/GRM_Backend.csproj",
+  "expectedPackageFiles": [
+    "/home/serebus/.nuget/packages/microsoft.aspnetcore.openapi/9.0.21/microsoft.aspnetcore.openapi.9.0.21.nupkg.sha512",
+    "/home/serebus/.nuget/packages/microsoft.openapi/1.6.31/microsoft.openapi.1.6.31.nupkg.sha512",
+    "/home/serebus/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.21/microsoft.aspnetcore.app.ref.9.0.21.nupkg.sha512"
+  ],
+  "logs": []
+}

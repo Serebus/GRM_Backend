@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Bundle> Bundles => Set<Bundle>();
     public DbSet<BundleItem> BundleItems => Set<BundleItem>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
+    public DbSet<CartItem> CartItems => Set<CartItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +36,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<StockMovement>()
             .HasOne(m => m.Variant).WithMany().HasForeignKey(m => m.VariantId)
             .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CartItem>()
+            .HasOne(c => c.Variant).WithMany().HasForeignKey(c => c.VariantId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<CartItem>().HasIndex(c => new { c.UserId, c.VariantId }).IsUnique();
         modelBuilder.Entity<Bundle>().Property(b => b.Price).HasPrecision(18, 2);
         modelBuilder.Entity<Bundle>()
             .HasMany(b => b.Items).WithOne().HasForeignKey(i => i.BundleId)

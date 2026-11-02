@@ -113,6 +113,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseSwagger();
+// Alias so tools expecting /openapi/v1.json also get a valid OpenAPI document
+app.UseSwagger(c => c.RouteTemplate = "openapi/{documentName}.json");
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "GRM Backend API v1");

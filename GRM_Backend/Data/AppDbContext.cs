@@ -21,6 +21,8 @@ public class AppDbContext : DbContext
     public DbSet<SalesOrder> SalesOrders => Set<SalesOrder>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<InvoiceLine> InvoiceLines => Set<InvoiceLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -102,5 +104,29 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<OrderItem>()
             .Property(i => i.UnitPrice).HasPrecision(18, 2);
+
+        // Invoice
+        modelBuilder.Entity<Invoice>()
+            .HasOne(inv => inv.Order).WithMany().HasForeignKey(inv => inv.OrderId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Invoice>()
+            .HasOne(inv => inv.Customer).WithMany().HasForeignKey(inv => inv.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Invoice>()
+            .HasOne(inv => inv.IssuedBy).WithMany().HasForeignKey(inv => inv.IssuedById)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Invoice>()
+            .HasMany(inv => inv.Lines).WithOne(l => l.Invoice).HasForeignKey(l => l.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<Invoice>()
+            .Property(inv => inv.AmountDue).HasPrecision(18, 2);
+        modelBuilder.Entity<Invoice>()
+            .Property(inv => inv.AmountPaid).HasPrecision(18, 2);
+        modelBuilder.Entity<Invoice>()
+            .HasIndex(inv => inv.OrderId); // one order can have one active invoice
+
+        // InvoiceLine
+        modelBuilder.Entity<InvoiceLine>()
+            .Property(l => l.UnitPrice).HasPrecision(18, 2);
     }
 }

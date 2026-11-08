@@ -1413,7 +1413,7 @@
         "downloadDependencies": [
           {
             "name": "Microsoft.AspNetCore.App.Ref",
-            "version": "[9.0.21, 9.0.21]"
+            "version": "[9.0.22, 9.0.22]"
           }
         ],
         "frameworkReferences": {
@@ -1424,7 +1424,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.122/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/9.0.123/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

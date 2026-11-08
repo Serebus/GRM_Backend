@@ -16,6 +16,9 @@ public class AppDbContext : DbContext
     public DbSet<BundleItem> BundleItems => Set<BundleItem>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<CartItem> CartItems => Set<CartItem>();
+    public DbSet<Quotation> Quotations => Set<Quotation>();
+    public DbSet<QuotationItem> QuotationItems => Set<QuotationItem>();
+    public DbSet<SalesOrder> SalesOrders => Set<SalesOrder>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -47,5 +50,37 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BundleItem>()
             .HasOne(i => i.Variant).WithMany().HasForeignKey(i => i.VariantId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Quotation
+        modelBuilder.Entity<Quotation>()
+            .HasOne(q => q.Customer).WithMany().HasForeignKey(q => q.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Quotation>()
+            .HasOne(q => q.Staff).WithMany().HasForeignKey(q => q.StaffId)
+            .OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<Quotation>()
+            .Property(q => q.DiscountPercent).HasPrecision(5, 2);
+        modelBuilder.Entity<Quotation>()
+            .HasMany(q => q.Items).WithOne(i => i.Quotation).HasForeignKey(i => i.QuotationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // QuotationItem
+        modelBuilder.Entity<QuotationItem>()
+            .HasOne(i => i.Variant).WithMany().HasForeignKey(i => i.VariantId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<QuotationItem>()
+            .Property(i => i.UnitPrice).HasPrecision(18, 2);
+
+        // SalesOrder
+        modelBuilder.Entity<SalesOrder>()
+            .HasOne(o => o.Quotation).WithMany().HasForeignKey(o => o.QuotationId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<SalesOrder>()
+            .HasOne(o => o.Customer).WithMany().HasForeignKey(o => o.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<SalesOrder>()
+            .Property(o => o.Total).HasPrecision(18, 2);
+        modelBuilder.Entity<SalesOrder>()
+            .HasIndex(o => o.QuotationId).IsUnique(); // one order per quote
     }
 }

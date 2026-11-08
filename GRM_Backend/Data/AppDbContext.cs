@@ -19,6 +19,8 @@ public class AppDbContext : DbContext
     public DbSet<Quotation> Quotations => Set<Quotation>();
     public DbSet<QuotationItem> QuotationItems => Set<QuotationItem>();
     public DbSet<SalesOrder> SalesOrders => Set<SalesOrder>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -82,5 +84,23 @@ public class AppDbContext : DbContext
             .Property(o => o.Total).HasPrecision(18, 2);
         modelBuilder.Entity<SalesOrder>()
             .HasIndex(o => o.QuotationId).IsUnique(); // one order per quote
+
+        // Order
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Customer).WithMany().HasForeignKey(o => o.CustomerId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Order>()
+            .HasOne(o => o.Staff).WithMany().HasForeignKey(o => o.StaffId)
+            .OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.Items).WithOne(i => i.Order).HasForeignKey(i => i.OrderId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // OrderItem
+        modelBuilder.Entity<OrderItem>()
+            .HasOne(i => i.Variant).WithMany().HasForeignKey(i => i.VariantId)
+            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<OrderItem>()
+            .Property(i => i.UnitPrice).HasPrecision(18, 2);
     }
 }

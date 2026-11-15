@@ -17,7 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add Services
 builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddSingleton<ITokenBlacklistService, TokenBlacklistService>();
+builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
 
 // Add JWT Authentication
 var jwtSecret = builder.Configuration["JwtSettings:Secret"] ?? "SuperSecretKeyForJwtTokenGenerationAndValidationInDevelopmentAndProduction123456!";

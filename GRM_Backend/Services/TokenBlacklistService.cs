@@ -1,32 +1,38 @@
-using System.Collections.Concurrent;
+using GRM_Backend.Data;
+using GRM_Backend.Models;
 
 namespace GRM_Backend.Services;
 
 public class TokenBlacklistService : ITokenBlacklistService
 {
-    private readonly ConcurrentDictionary<string, DateTime> _blacklistedTokens = new();
+    private readonly AppDbContext _context;
+
+    public TokenBlacklistService(AppDbContext context)
+    {
+        _context = context;
+    }
 
     public void BlacklistToken(string token, DateTime expiryDate)
     {
-        CleanupExpired();
-        _blacklistedTokens.TryAdd(token, expiryDate);
+        if (string.IsNullOrWhiteSpace(token)) return;
+
+        var existing = _context.RevokedTokens.Any(t => t.Token == token);
+        if (!existing)
+        {
+            _context.RevokedTokens.Add(new RevokedToken
+            {
+                Token = token,
+                ExpiryDate = expiryDate,
+                RevokedAt = DateTime.UtcNow
+            });
+            _context.SaveChanges();
+        }
     }
 
     public bool IsTokenBlacklisted(string token)
     {
-        CleanupExpired();
-        return _blacklistedTokens.ContainsKey(token);
-    }
+        if (string.IsNullOrWhiteSpace(token)) return false;
 
-    private void CleanupExpired()
-    {
-        var now = DateTime.UtcNow;
-        foreach (var pair in _blacklistedTokens)
-        {
-            if (pair.Value < now)
-            {
-                _blacklistedTokens.TryRemove(pair.Key, out _);
-            }
-        }
+        return _context.RevokedTokens.Any(t => t.Token == token && t.ExpiryDate > DateTime.UtcNow);
     }
 }

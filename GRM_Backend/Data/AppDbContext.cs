@@ -29,6 +29,8 @@ public class AppDbContext : DbContext
     public DbSet<ReorderSetting> ReorderSettings => Set<ReorderSetting>();
     public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
     public DbSet<PurchaseOrderItem> PurchaseOrderItems => Set<PurchaseOrderItem>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<RevokedToken> RevokedTokens => Set<RevokedToken>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,6 +48,7 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<ProductVariant>().HasIndex(v => v.Sku).IsUnique();
         modelBuilder.Entity<ProductVariant>().Property(v => v.Price).HasPrecision(18, 2);
+        modelBuilder.Entity<ProductVariant>().Property(v => v.CostPrice).HasPrecision(18, 2);
         modelBuilder.Entity<StockMovement>()
             .HasOne(m => m.Variant).WithMany().HasForeignKey(m => m.VariantId)
             .OnDelete(DeleteBehavior.Cascade);
@@ -186,5 +189,16 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<PurchaseOrderItem>()
             .Property(i => i.UnitCost).HasPrecision(18, 2);
+
+        // RefreshToken
+        modelBuilder.Entity<RefreshToken>()
+            .HasOne(r => r.User).WithMany(u => u.RefreshTokens).HasForeignKey(r => r.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<RefreshToken>()
+            .HasIndex(r => r.Token).IsUnique();
+
+        // RevokedToken
+        modelBuilder.Entity<RevokedToken>()
+            .HasIndex(t => t.Token);
     }
 }

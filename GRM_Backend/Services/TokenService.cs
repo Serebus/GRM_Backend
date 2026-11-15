@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using GRM_Backend.Models;
 using Microsoft.IdentityModel.Tokens;
@@ -49,5 +50,23 @@ public class TokenService : ITokenService
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         return (tokenHandler.WriteToken(token), expiresAt);
+    }
+
+    public RefreshToken GenerateRefreshToken(string? ipAddress = null)
+    {
+        var randomBytes = new byte[64];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+        var token = Convert.ToBase64String(randomBytes);
+
+        var days = int.TryParse(_configuration["JwtSettings:RefreshTokenExpirationInDays"], out var d) ? d : 7;
+
+        return new RefreshToken
+        {
+            Token = token,
+            ExpiresAt = DateTime.UtcNow.AddDays(days),
+            CreatedAt = DateTime.UtcNow,
+            CreatedByIp = ipAddress
+        };
     }
 }
